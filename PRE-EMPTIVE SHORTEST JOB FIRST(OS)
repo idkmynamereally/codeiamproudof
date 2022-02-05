@@ -1,0 +1,144 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(){
+    int n;
+    static float timer = 0;
+    int possicounter = 0;
+    float fullwaitingtime = 0;
+    float fulltattime = 0;
+    printf("NO OF JOBS : ");
+    scanf("%d",&n);
+
+    int * job_burst_time = (int *)malloc(n*sizeof(int));
+    int * job_arrival_time = (int *)malloc(n*sizeof(int));
+    int * job_turnaround_time = (int *)malloc(n*sizeof(int));
+    int * completion_time = (int *)malloc(n*sizeof(int));
+    int * waiting_time = (int *)malloc(n*sizeof(int));
+    int * order_of_exec = (int *)malloc(n*sizeof(int));
+    int * possiblity_index= (int *)malloc(n*sizeof(int));
+
+    for (int i = 0; i < n; i++){
+        printf("\nArrival Time of Job %d : ",(i+1));
+        scanf("%d",&job_arrival_time[i]);
+    }
+
+    for (int i = 0; i < n ; i++){
+        printf("\nBurst Time of Job %d : ",(i+1));
+        scanf("%d",&job_burst_time[i]);
+    }
+
+    for (int i =0; i<n; i++){
+        order_of_exec[i] = i+1;
+    }
+
+    void exchange(int ia,int xa){
+        int temp;
+
+        temp = job_burst_time[ia];
+        job_burst_time[ia] = job_burst_time[xa];
+        job_burst_time[xa] = temp;
+
+        temp = job_arrival_time[ia];
+        job_arrival_time[ia] = job_arrival_time[xa];
+        job_arrival_time[xa] = temp;
+
+        temp = order_of_exec[ia];
+        order_of_exec[ia] = order_of_exec[xa];
+        order_of_exec[xa] = temp;
+    }
+
+    void execute(int ia){
+        if (job_arrival_time[ia] > timer){
+            timer = job_arrival_time[ia];
+        }
+        waiting_time[ia] = timer - job_arrival_time[ia];
+        timer = timer + job_burst_time[ia];
+        completion_time[ia] = timer;
+        job_turnaround_time[ia] = completion_time[ia] - job_arrival_time[ia];
+    }
+
+    void checkpossi(int ia){
+        int k = 0;
+        int size = 0;
+        possicounter = 0;
+        for (int j = ia + 1; j < n ; j++){
+            if (job_arrival_time[j] <= timer){
+                possicounter++;
+            }
+        }
+
+        possiblity_index =(int *)malloc(possicounter*sizeof(int));
+
+        for (int j = ia + 1; j < n ; j++){
+            if (job_arrival_time[j] <= timer){
+                possiblity_index[k] = j;
+                k++;
+            }
+        }
+    }
+
+    int bestburst(){
+        int best = possiblity_index[0];
+        int x = 0;
+
+        for (int i = 0; i < possicounter; i++){
+            for(int x = i+1; x<possicounter; x++){
+                if(job_burst_time[possiblity_index[i]] > job_burst_time[possiblity_index[x]]){
+                    best = possiblity_index[x];
+                    i = x-1;
+                    break;
+                }
+            }
+        }
+        return best;
+    }
+
+    checkpossi(0);
+    int bestarrival = 0;
+    for (int i = 0; i < n; i++){
+        if(job_arrival_time[i] < job_arrival_time[0]){
+            bestarrival = i;
+        }
+    }
+    exchange(0,bestarrival);
+
+    for (int i = 0; i<n; i++){
+        execute(i);
+        checkpossi(i);
+        if (i+1 < n){
+        exchange(i+1,bestburst());
+        }
+    }
+
+    printf("ORDER OF EXECUTION ->");
+    for (int i = 0; i < n ; i++){
+        printf("process no. %d, ",order_of_exec[i]);
+    }
+    printf("\n\n\n");
+    for (int i =0; i<n; i++){
+        printf("Waiting Time of Process %d -> %d\n",(i+1),waiting_time[i]);
+        fullwaitingtime = fullwaitingtime + waiting_time[i];
+    }
+
+    printf("\n\n");
+    for (int i =0; i<n; i++){
+        printf("Completion Time of Process %d -> %d\n",(i+1),completion_time[i]);
+    }
+
+    printf("\n\n");
+    for (int i =0; i<n; i++){
+        printf("Turn Around Time of Process %d -> %d\n",(i+1),job_turnaround_time[i]);
+        fulltattime = fulltattime + job_turnaround_time[i];
+    }
+
+    printf("\n\n");
+    printf("Avg Waiting Time -> %f",fullwaitingtime/n);
+    printf("\n\n");
+    printf("Avg Turnaround Time -> %f",(fulltattime/n));
+    printf("\n\n");
+    printf("Throughput -> %f",(float)(timer/n));
+    printf("\n\n");
+    printf("Execution Time 5-> %f",timer);
+    return 0;
+}
