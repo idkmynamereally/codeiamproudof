@@ -2,24 +2,24 @@
 #include <stdlib.h>
 
 int main(){
-    int n;                                                        //no.of.jobs
-    static float timer = 0;                                       //timeline
-    int possicounter = 0;                                         //NO.OF.POSSIBILITY
-    float fullwaitingtime = 0;                                    //FOR AVERAGE
+    int n;                                                         //no.of.jobs
+    static float timer = 0;                                        //timeline
+    int possicounter = 0;                                          //NO.OF.PROCESS AVAILABLE AFTER A PROCESS IS FINISHED
+    float fullwaitingtime = 0;
     float fulltattime = 0;
     printf("NO OF JOBS : ");
     scanf("%d",&n);
 
-    int * job_burst_time = (int *)malloc(n*sizeof(int));            //ARRAY FOR BURST TIME
-    int * job_arrival_time = (int *)malloc(n*sizeof(int));          //ARRAY OF ARRIVAL
-    int * job_turnaround_time = (int *)malloc(n*sizeof(int));       //ALL ARRAY MAKER
-    int * completion_time = (int *)malloc(n*sizeof(int));
-    int * waiting_time = (int *)malloc(n*sizeof(int));
-    int * order_of_exec = (int *)malloc(n*sizeof(int));
-    int * possiblity_index= (int *)malloc(n*sizeof(int));
+    int * job_burst_time = (int *)malloc(n*sizeof(int));           //CREATE ARRAY FOR BURST TIME
+    int * job_arrival_time = (int *)malloc(n*sizeof(int));         //CREATE ARRAY OF ARRIVAL TIME
+    int * job_turnaround_time = (int *)malloc(n*sizeof(int));      //CREATE TURNAROUNDTIME ARRAY
+    int * completion_time = (int *)malloc(n*sizeof(int));          //CREATE COMPLETION TIME ARRAY
+    int * waiting_time = (int *)malloc(n*sizeof(int));             //CREATE WAITING TIME ARRAY
+    int * order_of_exec = (int *)malloc(n*sizeof(int));            //CREATE A SPECIAL ARRAY THAT WILL BE USED TO STORE PROCESSES IN THE ORDER THEY WILL BE EXECUTED
+    int * possiblity_index= (int *)malloc(n*sizeof(int));          //CREATE A ARRAY THAT STORES ALL THE PROCESSES AVAILABLE AFTER A PROCESS
 
     for (int i = 0; i < n; i++){
-        printf("\nArrival Time of Job %d : ",(i+1));                //TAKE ARRIVAL TIME
+        printf("\nArrival Time of Job %d : ",(i+1));               //TAKE ARRIVAL TIME
         scanf("%d",&job_arrival_time[i]);
     }
 
@@ -28,11 +28,11 @@ int main(){
         scanf("%d",&job_burst_time[i]);
     }
 
-    for (int i =0; i<n; i++){
-        order_of_exec[i] = i+1;                                     //INITIALISE ORDER OF ARRAY
+    for (int i =0; i<n; i++){                                       //INITIALISE THE ORDER OF EXECUTION TO 1 TO LAST FOR NOW
+        order_of_exec[i] = i+1;
     }
 
-    void exchange(int ia,int xa){                                   //EXCHANGE PROCESS PLACE
+    void exchange(int ia,int xa){                                   //EXCHANGE FUNCTION TO SWAP TWO PROCESSES IN EXECUTION ORDER
         int temp;
 
         temp = job_burst_time[ia];
@@ -48,7 +48,7 @@ int main(){
         order_of_exec[xa] = temp;
     }
 
-    void execute(int ia){                                                       //EXECUTE A PARTICULAR PROCESS
+    void execute(int ia){                                            //EXECUTE A GIVEN PROCESS
         if (job_arrival_time[ia] > timer){
             timer = job_arrival_time[ia];
         }
@@ -58,7 +58,7 @@ int main(){
         job_turnaround_time[ia] = completion_time[ia] - job_arrival_time[ia];
     }
 
-    void checkpossi(int ia){                                        //CHECK POSSIBILITY OF NEXT PROCESSES
+    void checkpossi(int ia){                                        //CHECK WHAT PROCESS ARE AVAILABLE AFTER A PARTICULAR PROCESS AND STORE THEM IN possibility_index
         int k = 0;
         int size = 0;
         possicounter = 0;
@@ -79,7 +79,7 @@ int main(){
         }
     }
 
-    int bestburst(){
+    int bestburst(){                                                //FIND THE BEST BURST TIME OF ALL THE PROCESSE'S AVILABLE
         int best = possiblity_index[0];
         int x = 0;
 
@@ -116,14 +116,14 @@ int main(){
     }
     exchange(0,bestarrival);
 
-    for (int i = 0; i<n; i++){
+    for (int i = 0; i<n; i++){                                       //THE MAIN FUNCTION
         execute(i);
         checkpossi(i);
         if (i+1 < n){
         exchange(i+1,bestburst());
         }
     }
-
+    //EVERYTING AHEAD IS OUTPUT
     printf("\n\n\nORDER OF EXECUTION ->");
     for (int i = 0; i < n ; i++){
         printf("process no. %d, ",order_of_exec[i]);
@@ -134,26 +134,26 @@ int main(){
         fullwaitingtime = fullwaitingtime + waiting_time[i];
     }
 
-    printf("\n\n");
+    printf("\n");
     for (int i =0; i<n; i++){
         printf("Completion Time of Process %d -> %d\n",order_of_exec[i],completion_time[i]);
     }
 
-    printf("\n\n");
+    printf("\n");
     for (int i =0; i<n; i++){
         printf("Turn Around Time of Process %d -> %d\n",order_of_exec[i],job_turnaround_time[i]);
         fulltattime = fulltattime + job_turnaround_time[i];
     }
 
-    printf("\n\n");
+    printf("\n");
     printf("Avg Waiting Time -> %f",fullwaitingtime/n);
-    printf("\n\n");
+    printf("\n");
     printf("Avg Turnaround Time -> %f",(fulltattime/n));
-    printf("\n\n");
+    printf("\n");
     printf("Throughput -> %f",(float)(timer/n));
-    printf("\n\n");
+    printf("\n");
     printf("Execution Time 5-> %f",timer);
-    printf("\n\n");printf("\n\n");
+    printf("\n");
 
     return 0;
 }
