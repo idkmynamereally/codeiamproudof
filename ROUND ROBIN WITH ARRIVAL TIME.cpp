@@ -3,7 +3,7 @@
 
 using namespace std;
 
-static int timer = 0;
+static float timer = 0;
 int timequanta = 0;
 static int pno = 0;
 int n;
@@ -43,16 +43,15 @@ public:
     vector <Process*>que;
 
 
-void exchange(Process * p1, Process * p2);
-void checkifque0();
-void sortqueBT();
-void shuffleque();
-bool anyleft();
-void addavailabletoque();
-void sortqueBT();
-void printer(Process pro);
-void printerheader();
-void sortAP_P_NO();
+void exchange(Process * p1, Process * p2);          //EXCHANGE TWO PROCESSES WITH EACH OTHER
+void checkifque0();                                 //CHECK IF THE QUE IS EMPTY AND IF IT IS
+void sortqueBT();                                   //SORT THE QUEUE ON THE BASIS OF BURST TIME
+void shuffleque();                                  //SHUFFLE THE QUEUE- when a process is completed move the que
+bool anyleft();                                     //CHECK IF ANY PROCESS HAS NOT BEEN ADDED TO QUE OR COMPLETED
+void addavailabletoque();                           //ADD ALL PROCESSES THAT HAVENT YET BEEN ADDED AND ARE AVILABLE TO THE QUE
+void printer(Process pro);                          //PRINT ALL THE DETAILS OF A PROCESS LIKE COMPLETION TIME AND WAITING TIME
+void printerheader();                               //PRINT THE COLUM CATEGORIES FOR PRINTING
+void sortAP_P_NO();                                 //SORT ALL THE PROCESS TO MAKE SURE EVERYTHING IS PRINTED PROPERLY
 
 int main()
 {
@@ -65,9 +64,10 @@ int main()
 
     vector <Process> fallprocess (n);
 
-    for (int i = 0; i < fallprocess.size(); i++){
+    for (int i = 0; i < fallprocess.size(); i++){                   //TRANSFER ALL THE PROCESSES TAKEN LOCALLY TO THE GLOBAL VECTOR
         allprocess.push_back(fallprocess[i]);
     }
+    cout << endl;
 
     for (int i = 0; i < n; i++){                        //take arrival time
         cout << "Enter Arrival Time Of Process " << allprocess[i].p_no << endl;
@@ -82,21 +82,25 @@ int main()
         allprocess[i].OG_burst_time = allprocess[i].burst_time;
     }
 
+    cout << endl << endl << "\t\t\t\t\t  GANTT CHART" << endl;
+
+
 while (anyleft()){
 
-    if (que.size())
+    if (que.size())                                     //IF QUE ISNT EMPTY
         addavailabletoque();
-    else
+    else                                                //IF QUE IS EMPTY
         checkifque0();
 
-    cout << timer << " ";
+    cout << timer << " ";                                //TO MAKE THE GANTT CHART
     que[0]->execute();
     cout << "|P" << que[0]->p_no << "| ";
     cout << timer << "   ";
+
     addavailabletoque();
     shuffleque();
 
-    if ( que[que.size() - 1]->burst_time == 0 ){
+    if ( que[que.size() - 1]->burst_time == 0 ){                                        //THE ELIMINATION PROCESS AFTER A PROCESS IS COMPLETED
          que[que.size() - 1]->completion_time = timer;
          que[que.size() - 1]->exit_time = timer;
          que[que.size() - 1]->turn_around_time = que[que.size() - 1]->exit_time - que[que.size() - 1]->arrival_time;
@@ -109,8 +113,22 @@ while (anyleft()){
     for (int i = 0; i < allprocess.size(); i++){
         printer(allprocess[i]);
     }
+
+    float total_waiting_time = 0;
+
+    for (int i = 0; i < allprocess.size(); i++){
+        total_waiting_time = allprocess[i].waiting_time + total_waiting_time;
+    }
+
+     cout << "\n\nAvg. Waiting TIme -> " << (float) total_waiting_time/(allprocess.size());
+     cout << "\nThroughput -> " << timer/(allprocess.size());
+     cout << "\nTotal Scheduling Time -> " << timer;
+
+
 return 0;
 }
+
+
 
 void printerheader(){
     cout << "\n\n\nPROCESS NO.\t" << "ARRIVAL TIME\t" << "BURST TIME\t" << "COMPLETION TIME\t   " << "EXIT TIME\t" << "TURN AROUND TIME     " << "WAITING TIME\n";
@@ -175,7 +193,7 @@ void checkifque0(){
     best->add = 1;
 
     addavailabletoque();
-    sortqueBT();
+    //sortqueBT();                  //ENABLE THIS IF TWO PROCESS WITH SAME Arrival Time are sorted by Burst TIme
 }
 
 void shuffleque(){
