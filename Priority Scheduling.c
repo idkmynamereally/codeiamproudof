@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//PROBLEM - insert_available_to_ready() adn ready_not_empty are adding the same process twoce
-
 
 static int timer;
 int total_process;
